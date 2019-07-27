@@ -1,12 +1,15 @@
 package com.myspring.di;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
+import javax.naming.ConfigurationException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +35,7 @@ public class MyContext {
         // create class instance based on a bean: beans -> objectsById
             try {
                 instantiateBeans();
-            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException | NoSuchFieldException | InvalidConfigurationException | ConfigurationException e) {
                 e.printStackTrace();
             }
     }
@@ -96,16 +99,63 @@ public class MyContext {
         }
     }
 
-    private void instantiateBeans() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    private void instantiateBeans() throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchFieldException, InvalidConfigurationException, ConfigurationException {
         for (Bean bean : beans) {
+
+            // get class instance
             Class<?> aClass = Class.forName(bean.getClassName());
             Object ob = aClass.newInstance();
 
             // set up ob
+            for(String id : bean.getProperties().keySet()) {
+                Field field = getField(aClass, id);
+
+                if (field == null) {
+                    throw new InvalidConfigurationException("Failed to set field " + id + " for class " + aClass.getName());
+                }
+
+                field.setAccessible(true);
+
+                Property property = bean.getProperties().get(id);
+
+                switch (property.getType()) {
+                    case VALUE:
+//                        field.set(ob, property.getValue());   // property.getValue() - already return string
+                        field.set(ob, convert(field.getType().getName(), property.getValue()));  // (field type, value)
+                        break;
+                    case REF:
+                        break;
+                    default:
+                        throw new InvalidConfigurationException("Type error");
+                }
+            }
 
             // put into map
             objectsById.put(bean.getId(), ob);
         }
+    }
+
+    private Object convert(String typeName, String value) throws ConfigurationException {
+        switch (typeName) {
+            case "int":
+            case "Integer":
+                return Integer.valueOf(value);
+            case "double":
+            case "Double":
+                return Double.valueOf(value);
+            case "float":
+            case "Float":
+                return Float.valueOf(value);
+            case "boolean":
+            case "Boolean":
+                return Boolean.valueOf(value);
+            default:
+                throw new ConfigurationException();
+        }
+    }
+
+    private Field getField(Class<?> aClass, String fieldName) throws NoSuchFieldException {
+        return aClass.getDeclaredField(fieldName);
     }
 
 }

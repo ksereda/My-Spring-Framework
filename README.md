@@ -9,3 +9,5 @@
 3) Parse XML
 
 4) Use reflection to create instances of parsed classes
+
+5) Set up object (class instance)
