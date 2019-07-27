@@ -30,7 +30,11 @@ public class MyContext {
         }
 
         // create class instance based on a bean: beans -> objectsById
-        instantiateBeans();
+            try {
+                instantiateBeans();
+            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
     }
 
     public Object getBean(String beanId) {
@@ -92,7 +96,16 @@ public class MyContext {
         }
     }
 
-    private void instantiateBeans() {
+    private void instantiateBeans() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        for (Bean bean : beans) {
+            Class<?> aClass = Class.forName(bean.getClassName());
+            Object ob = aClass.newInstance();
+
+            // set up ob
+
+            // put into map
+            objectsById.put(bean.getId(), ob);
+        }
     }
 
 }

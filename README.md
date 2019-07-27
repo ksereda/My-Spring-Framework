@@ -8,3 +8,4 @@
 
 3) Parse XML
 
+4) Use reflection to create instances of parsed classes
