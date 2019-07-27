@@ -11,3 +11,5 @@
 4) Use reflection to create instances of parsed classes
 
 5) Set up object (class instance)
+
+6) fixed NoSuchFieldException in getField() method

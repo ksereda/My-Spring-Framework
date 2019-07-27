@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
         MyContext myContext = new MyContext("config.xml");
-        Car car = myContext.getBean("car");
+        Car car = (Car) myContext.getBean("car");
     }
 
 }

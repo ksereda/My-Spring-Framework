@@ -155,7 +155,16 @@ public class MyContext {
     }
 
     private Field getField(Class<?> aClass, String fieldName) throws NoSuchFieldException {
-        return aClass.getDeclaredField(fieldName);
+        try {
+            return aClass.getDeclaredField(fieldName);  // we can get exception because we haven't count field in Manual class
+        } catch (NoSuchFieldException e) {
+            Class<?> superclass = aClass.getSuperclass();
+            if (superclass == null) {
+                throw e;
+            } else {
+                return getField(superclass, fieldName);
+            }
+        }
     }
 
 }
