@@ -1,0 +1,12 @@
+<root>
+    <bean id="engine" class="com.myspring.Engine">
+        <property name="power" val="230" />
+    </bean>
+    <bean id="gear" class="com.myspring.Manual">
+        <property name="count" val="2" />
+    </bean>
+    <bean id="car" class="com.myspring.Car">
+        <property name="engine" ref="engine" />
+        <property name="gear" ref="gear" />
+    </bean>
+</root>
